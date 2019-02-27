@@ -54,9 +54,13 @@ def returner(ret):
     results = {'managed_items': _process_managed_items(ret['return'])}
     results['facts'] = _flatten(_clean_grains(__grains__))
 
-    # Replace the entire output every run.
-    with open(results_path, 'w') as handle:
-        salt.utils.json.dump(results, handle)
+    try:
+        # Replace the entire output every run.
+        with open(results_path, 'w') as handle:
+            salt.utils.json.dump(results, handle)
+    except FileNotFoundError:
+        # The sal-scripts dir is not in place!
+        pass
 
 
 def _process_managed_items(items):
