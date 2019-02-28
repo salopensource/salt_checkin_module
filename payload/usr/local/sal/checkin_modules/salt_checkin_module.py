@@ -36,7 +36,7 @@ def main():
         except ValueError:
             pass
 
-    utils.set_checkin_results('salt', results)
+    utils.set_checkin_results('Salt', results)
 
 
 if __name__ == "__main__":
