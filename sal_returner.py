@@ -52,7 +52,9 @@ def returner(ret):
     results_path = os.path.join(SAL_PATH, 'salt_returner_results.json')
 
     results = {'managed_items': _process_managed_items(ret['return'])}
+    results['extra_data'] = _process_extra_data(ret)
     results['facts'] = _flatten(_clean_grains(__grains__))
+    results['facts']['Last Highstate'] = pytz.utc.localize(datetime.datetime.now()).isoformat()
 
     try:
         # Replace the entire output every run.
@@ -93,6 +95,15 @@ def _process_managed_items(items):
         managed_items[item_id] = managed_item
 
     return managed_items
+
+
+def _process_extra_data(ret):
+    extra_data = {
+        'jid': ret['jid'],
+        'success': ret['success'],
+        'retcode': ret['retcode'],
+    }
+    return extra_data
 
 
 def _flatten(source, key=None):
