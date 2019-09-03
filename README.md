@@ -1,8 +1,4 @@
 # Overview
-
-## Warning
-This is for an upcoming release of Sal (v4)!
-
 This returner module takes the output a Salt run and processes it into
 a Sal ManagedItem and Facts submission format.
 
