@@ -133,6 +133,9 @@ def _flatten(source, key=None):
             for index, value in enumerate(source):
                 result_dict.update(_flatten(value, key='{}=>{}'.format(key, index)))
 
+    elif source is None:
+        source = ""
+
     else:
         result_dict[key] = source
 
