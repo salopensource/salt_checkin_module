@@ -35,8 +35,15 @@ LOG_PATTERN = (
     r'(?P<text>.*?(?=\n\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}|$))')  # Match everything until
     # the next date or EOF.
 
+MSG_BLACKLIST = [
+    (r'^The minion failed to return the job information for job (req|\d+)\. '
+        r'This is often due to the master being shut down or overloaded. '
+        r'If the master is running, consider increasing the worker_threads value.$')]
+BLACKLIST_PATTERNS = [re.compile(p) for p in MSG_BLACKLIST]
+
 
 def main():
+    _update_blacklist()
     results = {}
     if os.path.exists(SALT_RETURNER_LOG):
         try:
@@ -63,12 +70,32 @@ def process_salt_logs(pid):
     # Example log line:
     # 2019-03-06 10:01:23,094 [root             :384 ][WARNING ][6972] <THE MESSAGE>
     # The message could be just everything until \n, or it could be
-    # multiple lineseverything until \n, or it could be multiple lines
+    # multiple lines everything until \n, or it could be multiple lines
     # terminated by a double \n\n.
 
     # Format the PID into the regex we've prepared, and compile it.
     pattern = re.compile(LOG_PATTERN % pid, re.DOTALL)
-    return [match.groupdict() for match in re.finditer(pattern, log)]
+    seen_matches = set()
+    messages = []
+    for match in re.finditer(pattern, log):
+        if match.groups() not in seen_matches and not _blacklisted(match):
+            messages.append(match.groupdict())
+            seen_matches.add(match.groups())
+    return messages
+
+
+def _update_blacklist():
+    global BLACKLIST_PATTERNS
+    user_blacklist = utils.pref("SaltMsgBlacklist") or []
+    try:
+        BLACKLIST_PATTERNS.extend([re.compile(p) for p in user_blacklist])
+    except TypeError:
+        pass
+
+
+def _blacklisted(match):
+    subject = match.group("text")
+    return any(p.search(subject) for p in BLACKLIST_PATTERNS)
 
 
 if __name__ == "__main__":

@@ -29,3 +29,5 @@ Schedule minion highstate runs:
 - Distribute the `salt_checkin_module.py` to the client machine's Sal checkin_modules directory. (On Mac: `/usr/local/sal/checkin_modules`). Again, you can use Salt to do this.
 
 There is a timing issue with this; if you distribute the returner with Salt, it won't be there in time to get imported during that same run. In practice, this is not a big deal, since it will probably be running a highstate again in not that long. If it's an issue, you can package it up and deploy everything with the sal-scripts. A munkipkg project is included so you can build that installer pkg.
+- Optionally, you can specify client preferences for the checkin module by adding Sal preferences in the normal way (i.e. defaults write, config profile). The current options are:
+	- `SaltMsgBlacklist` (array of strings): An array of regex patterns to use to filter warnings and errors from the log for the checkin modules submission.
