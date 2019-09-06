@@ -35,6 +35,8 @@ LOG_PATTERN = (
     r'(?P<text>.*?(?=\n\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}|$))')  # Match everything until
     # the next date or EOF.
 
+# Blacklist out spurious errors from:
+# https://github.com/saltstack/salt/issues/53474
 MSG_BLACKLIST = [
     (r'^The minion failed to return the job information for job (req|\d+)\. '
         r'This is often due to the master being shut down or overloaded. '
@@ -43,7 +45,6 @@ BLACKLIST_PATTERNS = [re.compile(p) for p in MSG_BLACKLIST]
 
 
 def main():
-    _update_blacklist()
     results = {}
     if os.path.exists(SALT_RETURNER_LOG):
         try:
@@ -82,15 +83,6 @@ def process_salt_logs(pid):
             messages.append(match.groupdict())
             seen_matches.add(match.groups())
     return messages
-
-
-def _update_blacklist():
-    global BLACKLIST_PATTERNS
-    user_blacklist = utils.pref("SaltMsgBlacklist") or []
-    try:
-        BLACKLIST_PATTERNS.extend([re.compile(p) for p in user_blacklist])
-    except TypeError:
-        pass
 
 
 def _blacklisted(match):
