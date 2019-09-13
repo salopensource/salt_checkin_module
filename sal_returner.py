@@ -74,6 +74,10 @@ def _process_managed_items(items):
 
     managed_items = {}
     for args, item in items.items():
+        if '__id__' not in item:
+            # This is a state that was not run due to the requisite
+            # system. Skip it.
+            continue
         managed_item = {}
         managed_item['status'] = _get_status(args, item)
         # We have to make a datetime and then just drop the date, as
