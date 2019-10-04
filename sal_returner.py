@@ -148,8 +148,8 @@ def _flatten(source, key=None):
 
 def _clean_grains(source):
     """Remove known problematic values from source."""
-    source['productname'] = source['productname'].replace('\u0000', '')
-    return source
+    # The productname and model sometimes has some null characters.
+    return {k: v.replace('\u0000', '') if isinstance(v, str) else v for k, v in source.items()}
 
 
 def _get_status(args, item):
