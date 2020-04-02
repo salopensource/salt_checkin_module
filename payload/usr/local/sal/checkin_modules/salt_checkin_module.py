@@ -69,7 +69,7 @@ def process_salt_logs(pid):
     pattern = re.compile(LOG_PATTERN % pid, re.DOTALL)
     seen_matches = set()
     messages = []
-    for match in re.finditer(pattern, log):
+    for match in pattern.finditer(log):
         if match.groups() not in seen_matches:
             messages.append(match.groupdict())
             seen_matches.add(match.groups())
