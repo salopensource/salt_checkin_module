@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/local/sal/Python.framework/Versions/3.8/bin/python3
 # Copyright 2019 Shea G. Craig
 
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,8 +21,7 @@ import re
 import subprocess
 import sys
 
-sys.path.insert(0, '/usr/local/sal')
-import utils
+import sal
 
 
 SALT_RETURNER_LOG = '/usr/local/sal/salt_returner_results.json'
