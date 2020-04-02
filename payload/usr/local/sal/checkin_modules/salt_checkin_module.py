@@ -49,7 +49,7 @@ def main():
     # output!
     results['messages'] = process_salt_logs(results['facts']['pid'])
 
-    utils.set_checkin_results('Salt', results)
+    sal.set_checkin_results('Salt', results)
 
 
 def process_salt_logs(pid):
