@@ -14,13 +14,9 @@
 # limitations under the License.
 
 
-import datetime
 import json
-import os
 import pathlib
 import re
-import subprocess
-import sys
 
 import sal
 
