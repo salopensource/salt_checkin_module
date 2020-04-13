@@ -53,7 +53,7 @@ def process_salt_logs(pid):
 
     log_path = pathlib.Path(sal.pref('SALT_LOG_FILE', '/var/log/salt/minion'))
     if log_path.exists():
-        log = log.read_text()
+        log = log_path.read_text()
     else:
         log = ''
 
