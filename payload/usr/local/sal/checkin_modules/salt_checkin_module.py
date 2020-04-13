@@ -23,6 +23,9 @@ import sal
 
 
 SALT_RETURNER_LOG = pathlib.Path('/usr/local/sal/salt_returner_results.json')
+# This is the default time format; if you have configured your Salt
+# install to use something else, you'll need to edit the TIME_FORMAT and
+# LOG_PATTERN below to parse it correctly.
 TIME_FORMAT = '%Y-%m-%d %H:%M:%S,%f'
 LOG_PATTERN = (
     r'(?P<date>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3})\s*?'  # Date
@@ -41,7 +44,7 @@ def main():
         except ValueError:
             pass
 
-    # Oddly, the rawfile_json returner puts the PID into the top level
+    # Oddly, the returner puts the PID into the top level
     # dict. We grab it from Facts, since it's not in the normal log
     # output!
     results['messages'] = process_salt_logs(results['facts']['pid'])

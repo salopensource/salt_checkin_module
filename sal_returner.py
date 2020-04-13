@@ -50,7 +50,6 @@ def __virtual__():
 def returner(ret):
     """"""
     results_path = os.path.join(SAL_PATH, 'salt_returner_results.json')
-
     results = {'managed_items': _process_managed_items(ret['return'])}
     results['extra_data'] = _process_extra_data(ret)
     results['facts'] = _flatten(_clean_grains(__grains__))
