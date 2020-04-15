@@ -47,7 +47,8 @@ def main():
     # Oddly, the returner puts the PID into the top level
     # dict. We grab it from Facts, since it's not in the normal log
     # output!
-    results['messages'] = process_salt_logs(results['facts']['pid'])
+    if 'facts' in results and 'pid' in results['facts']:
+        results['messages'] = process_salt_logs(results['facts']['pid'])
 
     sal.set_checkin_results('Salt', results)
 
