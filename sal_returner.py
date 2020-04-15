@@ -18,6 +18,8 @@ import os
 import platform
 
 import pytz
+import six
+
 import salt.utils.json
 
 
@@ -148,7 +150,9 @@ def _flatten(source, key=None):
 def _clean_grains(source):
     """Remove known problematic values from source."""
     # The productname and model sometimes has some null characters.
-    return {k: v.replace('\u0000', '') if isinstance(v, str) else v for k, v in source.items()}
+    pattern = '\u0000' if six.PY3 else '\x00'
+    str_type = str if six.PY3 else unicode
+    return {k: v.replace(pattern, '') if isinstance(v, str_type) else v for k, v in source.items()}
 
 
 def _get_status(args, item):
