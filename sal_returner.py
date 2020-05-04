@@ -22,7 +22,6 @@ import six
 
 import salt.utils.json
 
-
 PRESENT_FUNCS = (
     'cached',
     'directory',
@@ -41,6 +40,7 @@ ABSENT_FUNCS = (
 
 __virtualname__ = 'sal'
 SAL_PATH = {'Darwin': '/usr/local/sal', None: None}.get(platform.system())
+RESULTS_PATH = '/usr/local/sal/checkin_results.json'
 
 
 def __virtual__():
@@ -52,18 +52,12 @@ def __virtual__():
 def returner(ret):
     """"""
     results_path = os.path.join(SAL_PATH, 'salt_returner_results.json')
-    results = {'managed_items': _process_managed_items(ret['return'])}
+    results = {}
+    results['managed_items'], results['messages'] = _process_managed_items(ret['return'])
     results['extra_data'] = _process_extra_data(ret)
     results['facts'] = _flatten(_clean_grains(__grains__))
     results['facts']['Last Highstate'] = pytz.utc.localize(datetime.datetime.now()).isoformat()
-
-    try:
-        # Replace the entire output every run.
-        with open(results_path, 'w') as handle:
-            salt.utils.json.dump(results, handle)
-    except FileNotFoundError:
-        # The sal-scripts dir is not in place!
-        pass
+    _set_checkin_results('Salt', results)
 
 
 def _process_managed_items(items):
@@ -74,6 +68,7 @@ def _process_managed_items(items):
     utc = pytz.utc
 
     managed_items = {}
+    messages = []
     for args, item in items.items():
         if '__id__' not in item:
             # This is a state that was not run due to the requisite
@@ -84,9 +79,15 @@ def _process_managed_items(items):
         # We have to make a datetime and then just drop the date, as
         # datetime.date strangely lacks the strptime func.
         time = datetime.datetime.strptime(item['start_time'], '%H:%M:%S.%f').time()
-        managed_item['date_managed'] = utc.localize(
+        managed_time = utc.localize(
             datetime.datetime.combine(today, time)).isoformat()
+        managed_item['date_managed'] = managed_time
         item.pop('start_time')
+
+        # Add a message if the state failed.
+        if not item['result']:
+            messages.append(
+                {'text': item['comment'], 'message_type': 'ERROR', 'date': managed_time})
 
         item['args'] = args
         if item.get('changes'):
@@ -99,7 +100,7 @@ def _process_managed_items(items):
         managed_item['data'] = item
         managed_items[item_id] = managed_item
 
-    return managed_items
+    return managed_items, messages
 
 
 def _process_extra_data(ret):
@@ -182,3 +183,37 @@ def _get_status(args, item):
     else:
         result = "UNKNOWN"
     return result
+
+
+def _get_checkin_results():
+    if os.path.exists(RESULTS_PATH):
+        with open(RESULTS_PATH) as results_handle:
+            try:
+                results = salt.utils.json.load(results_handle)
+            except:
+                results = {}
+    else:
+        results = {}
+
+    return results
+
+
+def _save_results(data):
+    """Replace all data in the results file."""
+    with open(RESULTS_PATH, 'w') as results_handle:
+        # salt.utils.json.dump(data, results_handle)
+        __utils__['json.dump'](data, results_handle)
+
+
+def _set_checkin_results(module_name, data):
+    """Set data by name to the shared results JSON file.
+
+    Existing data is overwritten.
+
+    Args:
+        module_name (str): Name of the management source returning data.
+        data (dict): Dictionary of results.
+    """
+    results = _get_checkin_results()
+    results[module_name] = data
+    _save_results(results)
