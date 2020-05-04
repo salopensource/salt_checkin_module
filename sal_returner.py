@@ -182,7 +182,13 @@ def _get_status(args, item):
     elif func in ABSENT_FUNCS:
         result = "ABSENT"
     else:
-        result = "UNKNOWN"
+        # As we iterate on the Sal managed item statuses, just assume
+        # that if it isn't an error, and not an "ABSENT", that it is
+        # successful and should be considered "PRESENT" for lack of
+        # something more accurate; e.g. longterm it will probably be
+        # either whatever str you want to use for status, or something
+        # more indicative of desired state; Okay/Error/Pending/Changed?
+        result = "PRESENT"
     return result
 
 
@@ -202,8 +208,7 @@ def _get_checkin_results():
 def _save_results(data):
     """Replace all data in the results file."""
     with open(RESULTS_PATH, 'w') as results_handle:
-        # salt.utils.json.dump(data, results_handle)
-        __utils__['json.dump'](data, results_handle)
+        salt.utils.json.dump(data, results_handle)
 
 
 def _set_checkin_results(module_name, data):
