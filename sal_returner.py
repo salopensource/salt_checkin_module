@@ -38,10 +38,10 @@ ABSENT_FUNCS = (
     'disabled',
     'removed',)
 
-__version__ = '0.2.0'
+__version__ = '0.2.1'
 __virtualname__ = 'sal'
 SAL_PATH = {'Darwin': '/usr/local/sal', None: None}.get(platform.system())
-RESULTS_PATH = '/usr/local/sal/checkin_results.json'
+RESULTS_PATH = '/usr/local/sal/salt_returner_results.json'
 
 
 def __virtual__():
@@ -58,7 +58,7 @@ def returner(ret):
     results['extra_data'] = _process_extra_data(ret)
     results['facts'] = _flatten(_clean_grains(__grains__))
     results['facts']['Last Highstate'] = pytz.utc.localize(datetime.datetime.now()).isoformat()
-    _set_checkin_results('Salt', results)
+    _save_results(results)
 
 
 def _process_managed_items(items):
@@ -192,34 +192,7 @@ def _get_status(args, item):
     return result
 
 
-def _get_checkin_results():
-    if os.path.exists(RESULTS_PATH):
-        with open(RESULTS_PATH) as results_handle:
-            try:
-                results = salt.utils.json.load(results_handle)
-            except:
-                results = {}
-    else:
-        results = {}
-
-    return results
-
-
 def _save_results(data):
     """Replace all data in the results file."""
     with open(RESULTS_PATH, 'w') as results_handle:
         salt.utils.json.dump(data, results_handle)
-
-
-def _set_checkin_results(module_name, data):
-    """Set data by name to the shared results JSON file.
-
-    Existing data is overwritten.
-
-    Args:
-        module_name (str): Name of the management source returning data.
-        data (dict): Dictionary of results.
-    """
-    results = _get_checkin_results()
-    results[module_name] = data
-    _save_results(results)
