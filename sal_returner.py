@@ -62,6 +62,12 @@ def returner(ret):
 
 
 def _process_managed_items(items):
+    # Handle errors that prevent Salt from running; probably state
+    # compilation failures.
+    if isinstance(items, list):
+        now = pytz.utc.localize(datetime.datetime.now()).isoformat()
+        return {}, [{"text": m, "message_type": "ERROR", "date": now} for m in items]
+
     # Salt's start_time is just a string representing local time, but
     # without offset. So combine today with the parsed time, and
     # localize to UTC before ISO formatting.
