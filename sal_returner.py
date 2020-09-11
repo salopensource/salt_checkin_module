@@ -38,7 +38,7 @@ ABSENT_FUNCS = (
     'disabled',
     'removed',)
 
-__version__ = '0.2.1'
+__version__ = '0.2.2'
 __virtualname__ = 'sal'
 SAL_PATH = {'Darwin': '/usr/local/sal', None: None}.get(platform.system())
 RESULTS_PATH = '/usr/local/sal/salt_returner_results.json'
