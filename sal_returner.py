@@ -54,10 +54,17 @@ def returner(ret):
     """"""
     results_path = os.path.join(SAL_PATH, 'salt_returner_results.json')
     results = {}
-    results['managed_items'], results['messages'] = _process_managed_items(ret['return'])
-    results['extra_data'] = _process_extra_data(ret)
-    results['facts'] = _flatten(_clean_grains(__grains__))
-    results['facts']['Last Highstate'] = pytz.utc.localize(datetime.datetime.now()).isoformat()
+    try:
+        results['managed_items'], results['messages'] = _process_managed_items(ret['return'])
+        results['extra_data'] = _process_extra_data(ret)
+        results['facts'] = _flatten(_clean_grains(__grains__))
+        results['facts']['Last Highstate'] = pytz.utc.localize(datetime.datetime.now()).isoformat()
+
+    except Exception as error:
+        messages = results.get("messages", [])
+        messages.append(f"Sal returner crashed with error: {error}")
+        results["messages"] = messages
+
     _save_results(results)
 
 
