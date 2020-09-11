@@ -72,10 +72,10 @@ def _process_managed_items(items):
     # without offset. So combine today with the parsed time, and
     # localize to UTC before ISO formatting.
     today = datetime.date.today()
-    utc = pytz.utc
 
     managed_items = {}
     messages = []
+
     for args, item in items.items():
         if '__id__' not in item:
             # This is a state that was not run due to the requisite
@@ -86,7 +86,7 @@ def _process_managed_items(items):
         # We have to make a datetime and then just drop the date, as
         # datetime.date strangely lacks the strptime func.
         time = datetime.datetime.strptime(item['start_time'], '%H:%M:%S.%f').time()
-        managed_time = utc.localize(
+        managed_time = pytz.utc.localize(
             datetime.datetime.combine(today, time)).isoformat()
         managed_item['date_managed'] = managed_time
         item.pop('start_time')
