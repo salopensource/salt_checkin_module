@@ -100,8 +100,9 @@ def _process_managed_items(items):
 
         # Add a message if the state failed.
         if not item['result']:
-            messages.append(
-                {'text': item['comment'], 'message_type': 'ERROR', 'date': managed_time})
+            if item['comment']:
+                messages.append(
+                    {'text': item['comment'], 'message_type': 'ERROR', 'date': managed_time})
 
         item['args'] = args
         if item.get('changes'):
