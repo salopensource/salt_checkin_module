@@ -92,9 +92,10 @@ def _process_managed_items(items):
         managed_item['status'] = _get_status(args, item)
         # We have to make a datetime and then just drop the date, as
         # datetime.date strangely lacks the strptime func.
-        time = datetime.datetime.strptime(item['start_time'], '%H:%M:%S.%f').time()
-        managed_time = pytz.utc.localize(
-            datetime.datetime.combine(today, time)).isoformat()
+        time = datetime.datetime.strptime(
+            item['start_time'], '%H:%M:%S.%f').astimezone(datetime.timezone.utc).time()
+        managed_time = datetime.datetime.combine(
+            today, time, tzinfo=datetime.timezone.utc).isoformat()
         managed_item['date_managed'] = managed_time
         item.pop('start_time')
 
