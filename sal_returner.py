@@ -17,7 +17,6 @@ import datetime
 import os
 import platform
 
-import pytz
 import six
 
 import salt.utils.json
@@ -58,7 +57,8 @@ def returner(ret):
         results['managed_items'], results['messages'] = _process_managed_items(ret['return'])
         results['extra_data'] = _process_extra_data(ret)
         results['facts'] = _flatten(_clean_grains(__grains__))
-        results['facts']['Last Highstate'] = pytz.utc.localize(datetime.datetime.now()).isoformat()
+        results['facts']['Last Highstate'] = datetime.datetime.now(
+            datetime.timezone.utc).isoformat()
 
     except Exception as error:
         messages = results.get("messages", [])
@@ -72,7 +72,7 @@ def _process_managed_items(items):
     # Handle errors that prevent Salt from running; probably state
     # compilation failures.
     if isinstance(items, list):
-        now = pytz.utc.localize(datetime.datetime.now()).isoformat()
+        now = datetime.datetime.now(datetime.timezone.utc).isoformat()
         return {}, [{"text": m, "message_type": "ERROR", "date": now} for m in items]
 
     # Salt's start_time is just a string representing local time, but
