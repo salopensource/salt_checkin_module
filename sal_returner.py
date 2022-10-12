@@ -37,7 +37,7 @@ ABSENT_FUNCS = (
     'disabled',
     'removed',)
 
-__version__ = '0.2.3'
+__version__ = '0.2.4'
 __virtualname__ = 'sal'
 SAL_PATH = {'Darwin': '/usr/local/sal', None: None}.get(platform.system())
 RESULTS_PATH = '/usr/local/sal/salt_returner_results.json'
@@ -102,7 +102,7 @@ def _process_managed_items(items):
         # Add a message if the state failed.
         if not item['result']:
             messages.append(
-                {'text': item['comment'], 'message_type': 'ERROR', 'date': managed_time})
+                {'text': item.get('comment', ''), 'message_type': 'ERROR', 'date': managed_time})
 
         item['args'] = args
         if item.get('changes'):
