@@ -1,4 +1,4 @@
-#!/usr/local/sal/Python.framework/Versions/3.8/bin/python3
+#!/usr/local/sal/Python.framework/Versions/Current/bin/python3
 # Copyright 2019 Shea G. Craig
 
 # Licensed under the Apache License, Version 2.0 (the "License");
