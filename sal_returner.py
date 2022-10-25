@@ -15,6 +15,7 @@
 
 import datetime
 import os
+import pathlib
 import platform
 
 import six
@@ -37,10 +38,10 @@ ABSENT_FUNCS = (
     'disabled',
     'removed',)
 
-__version__ = '0.2.4'
+__version__ = '0.2.5'
 __virtualname__ = 'sal'
 SAL_PATH = {'Darwin': '/usr/local/sal', None: None}.get(platform.system())
-RESULTS_PATH = '/usr/local/sal/salt_returner_results.json'
+RESULTS_PATH = pathlib.Path('/usr/local/sal/salt_returner_results.json')
 
 
 def __virtual__():
@@ -209,5 +210,5 @@ def _get_status(args, item):
 
 def _save_results(data):
     """Replace all data in the results file."""
-    with open(RESULTS_PATH, 'w') as results_handle:
-        salt.utils.json.dump(data, results_handle)
+    RESULTS_PATH.parent.mkdir(parents=True, exist_ok=True)
+    RESULTS_PATH.write_text(salt.utils.json.dumps(data))
